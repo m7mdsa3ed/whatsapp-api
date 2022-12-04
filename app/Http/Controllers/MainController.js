@@ -9,7 +9,7 @@ exports.connect = async (req, res) => {
     })
   }
 
-  const results = await venomService.makeConnection(connectionName)
+  const results = await venomService.getConnection(connectionName)
 
   if (results.status == "CONNECTED") {
     return res.json({
