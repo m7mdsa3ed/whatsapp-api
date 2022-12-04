@@ -62,7 +62,9 @@ module.exports = new class {
 
         const fileName = `${connectionName}-qr.png`
 
-        fs.writeFile(`storage/${fileName}`, imageBuffer['data'], 'binary', (err) => {
+        const path = `public/storage/${fileName}`
+
+        fs.writeFile(path, imageBuffer['data'], 'binary', (err) => {
           if (err != null) {
             console.log(err);
           }
@@ -71,7 +73,7 @@ module.exports = new class {
         resolve({
           connectionName,
           status: "WAITING_FOR_QRSCAN",
-          url: `storage/${fileName}`
+          url: process.env.APP_URL + `/render/qr/${fileName}`,
         })
       }
 

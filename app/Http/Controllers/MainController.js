@@ -9,7 +9,7 @@ exports.connect = async (req, res) => {
     })
   }
 
-  const results = await venomService.getConnection(connectionName)
+  const results = await venomService.makeConnection(connectionName)
 
   if (results.status == "CONNECTED") {
     return res.json({
@@ -18,6 +18,16 @@ exports.connect = async (req, res) => {
   }
 
   return res.json(results)
+}
+
+exports.renderQR = async (req, res) => {
+  const imageName = req.params.name
+
+  const baseURL = '/storage'
+
+  const path = `${baseURL}/${imageName}`
+
+  res.render('view', { path })
 }
 
 exports.connections = async (req, res) => {

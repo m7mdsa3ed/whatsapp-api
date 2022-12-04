@@ -7,6 +7,7 @@ const Authentication = require('../app/Http/Middlewares/Authentication');
 router.get('/', HomeController.index)
 
 router.post('/connect', Authentication, MainController.connect)
+router.get('/render/qr/:name', MainController.renderQR)
 router.post('/connections', Authentication, MainController.connections)
 router.post('/send-message', Authentication, MainController.sendMessage)
 
