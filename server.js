@@ -1,12 +1,16 @@
 const express = require('express');
+
 const app = express()
 
-const port = 3000
-const routes = require('./routes')
+require('dotenv').config()
+
+require('./libs/mongodb').connect()
 
 app.use(express.json())
 
-app.use('/', routes)
+app.use('/', require('./routes'))
+
+const port = process.env.APP_PORT || 3000
 
 app.listen(port, () => {
   console.log(`Running on http://localhost:${port}`)
