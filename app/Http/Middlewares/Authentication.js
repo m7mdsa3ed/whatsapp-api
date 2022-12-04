@@ -1,9 +1,9 @@
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   // Extract API Key
   const token = getAuthroizationToken(req);
 
   // Validate againt DB
-  const isValid = validateToken(token)
+  const isValid = await validateToken(token)
 
   if (!isValid) {
     return res.status(401)
@@ -25,8 +25,12 @@ const getAuthroizationToken = (req) => {
   return undefined;
 }
 
-const validateToken = (token) => {
-  return true;
+const validateToken = async (token) => {
+  const AccessKey = require('../../Models/AccessKey.model')
+
+  const key = await AccessKey.find({ key: token })
+
+  return !! key.length
 }
 
 module.exports = authenticate
