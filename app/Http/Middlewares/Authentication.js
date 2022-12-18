@@ -1,8 +1,8 @@
 const authenticate = async (req, res, next) => {
   // Extract API Key
-  const token = getAuthroizationToken(req);
+  const token = getAuthorizationToken(req);
 
-  // Validate againt DB
+  // Validate against DB
   const isValid = await validateToken(token)
 
   if (!isValid) {
@@ -15,7 +15,7 @@ const authenticate = async (req, res, next) => {
   return next()
 }
 
-const getAuthroizationToken = (req) => {
+const getAuthorizationToken = (req) => {
   const authorizationHeader = req.headers?.authorization
 
   if (authorizationHeader) {
