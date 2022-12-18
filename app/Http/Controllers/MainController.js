@@ -55,6 +55,17 @@ exports.sendMessage = async (req, res) => {
     try {
       const response = await client.sendText(`${number}@c.us`, message)
 
+      const log = require('../../Models/Log.model')
+
+      log.create({
+        type: "SEND_MESSAGE",
+        body: {
+          connectionName,
+          number,
+          message,
+        },
+      })
+
       return res.json({
         response
       })
