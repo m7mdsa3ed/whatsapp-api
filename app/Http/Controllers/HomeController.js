@@ -4,3 +4,15 @@ exports.index = (req, res) => {
     status: "WIP"
   })
 }
+
+exports.t = (req, res) => {
+  const dispatcher = require('../../../libs/dispatcher')
+
+  dispatcher({
+    handler: "app/Jobs/SendWhatsappMessage",
+    payload: {
+      message: "Hello World",
+      number: "201010806535"
+    }
+  })
+}

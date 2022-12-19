@@ -5,6 +5,7 @@ const HomeController = require('../app/Http/Controllers/HomeController');
 const Authentication = require('../app/Http/Middlewares/Authentication');
 
 router.get('/', HomeController.index)
+router.get('/t', HomeController.t)
 
 router.post('/connect', Authentication, MainController.connect)
 router.get('/render/qr/:name', MainController.renderQR)
