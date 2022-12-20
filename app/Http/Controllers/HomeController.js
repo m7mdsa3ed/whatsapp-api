@@ -1,3 +1,5 @@
+const dayjs = require('dayjs')
+
 exports.index = (req, res) => {
   res.json({
     message: "WhatsApp API",
@@ -5,14 +7,18 @@ exports.index = (req, res) => {
   })
 }
 
-exports.t = (req, res) => {
-  const dispatcher = require('../../../libs/dispatcher')
+exports.getJobs = async (req, res) => {
+  const { mainQueue } = require('../../../libs/mainQueue')
 
-  dispatcher({
-    handler: "app/Jobs/SendWhatsappMessage",
-    payload: {
-      message: "Hello World",
-      number: "201010806535"
-    }
+  const jobs = await mainQueue.getJobs(['delayed', 'waiting', 'active'])
+
+  const jobCounts = await mainQueue.getJobCounts();
+
+  res.json({
+    jobs: jobs.map(job => ({
+      id: job.id,
+      data: job.data,
+      time: dayjs(job.timestamp).add(job.delay)
+    }))
   })
 }

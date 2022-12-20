@@ -1,4 +1,6 @@
 const venomService = require('../../Services/Venom')
+const { dispatcher } = require('../../../libs/mainQueue')
+const dayjs = require('dayjs')
 
 exports.connect = async (req, res) => {
   const { connectionName } = req.body || {}
@@ -76,4 +78,23 @@ exports.sendMessage = async (req, res) => {
       })
     }
   }
+}
+
+exports.scheduleMessage = (req, res) => {
+  const { connectionName, number, message, at } = req.body || {};
+
+  const payload = {
+    handler: "app/Jobs/SendWhatsappMessage",
+    payload: {
+      connectionName, 
+      number, 
+      message,
+    }
+  }
+
+  dispatcher(payload, { delay: dayjs(at).diff(dayjs()) })
+
+  res.json({
+    message: 'Message Scheduled!'
+  })
 }
