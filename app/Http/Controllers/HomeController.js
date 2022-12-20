@@ -1,4 +1,5 @@
 const dayjs = require('dayjs')
+dayjs.extend(require('dayjs/plugin/localizedFormat'))
 
 exports.index = (req, res) => {
   res.json({
@@ -8,17 +9,17 @@ exports.index = (req, res) => {
 }
 
 exports.getJobs = async (req, res) => {
-  const { mainQueue } = require('../../../libs/mainQueue')
+  const { queue } = require('../../Queues/Main')
 
-  const jobs = await mainQueue.getJobs(['delayed', 'waiting', 'active'])
+  const jobs = await queue.getJobs(['delayed', 'waiting', 'active'])
 
-  const jobCounts = await mainQueue.getJobCounts();
+  const jobCounts = await queue.getJobCounts();
 
   res.json({
     jobs: jobs.map(job => ({
       id: job.id,
       data: job.data,
-      time: dayjs(job.timestamp).add(job.delay)
+      time: dayjs(job.timestamp).add(job.delay).format("LLL")
     }))
   })
 }

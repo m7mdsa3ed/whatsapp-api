@@ -1,5 +1,5 @@
 const venomService = require('../../Services/Venom')
-const { dispatcher } = require('../../../libs/mainQueue')
+const { dispatcher } = require('../../Queues/Main')
 const dayjs = require('dayjs')
 
 exports.connect = async (req, res) => {
