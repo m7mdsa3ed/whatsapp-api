@@ -1,6 +1,7 @@
 const venomService = require('../../Services/Venom')
 const { dispatcher } = require('../../Queues/Main')
 const dayjs = require('dayjs')
+const log = require('../../Models/Log.model')
 
 exports.connect = async (req, res) => {
   const { connectionName } = req.body || {}
@@ -43,40 +44,32 @@ exports.connections = async (req, res) => {
 exports.sendMessage = async (req, res) => {
   const { connectionName, number, message } = req.body || {};
 
-  const connection = await venomService.getConnection(connectionName)
+  if (typeof number == 'undefined' || typeof message == 'undefined') {
+    return res.json({
+      error: "Missing Params"
+    })
+  }
 
-  if (connection) {
-    const client = connection.client
+  try {
+    const response = await venomService.sendMessage({ connectionName, number, message })
 
-    if (typeof number == 'undefined' || typeof message == 'undefined') {
-      return res.json({
-        error: "Missing Params"
-      })
-    }
+    log.create({
+      type: "SEND_MESSAGE",
+      body: {
+        connectionName,
+        number,
+        message,
+      },
+    })
 
-    try {
-      const response = await client.sendText(`${number}@c.us`, message)
+    return res.json({
+      response
+    })
 
-      const log = require('../../Models/Log.model')
-
-      log.create({
-        type: "SEND_MESSAGE",
-        body: {
-          connectionName,
-          number,
-          message,
-        },
-      })
-
-      return res.json({
-        response
-      })
-
-    } catch (error) {
-      return res.json({
-        error
-      })
-    }
+  } catch (error) {
+    return res.json({
+      error
+    })
   }
 }
 
@@ -86,8 +79,8 @@ exports.scheduleMessage = (req, res) => {
   const payload = {
     handler: "app/Jobs/SendWhatsappMessage",
     payload: {
-      connectionName, 
-      number, 
+      connectionName,
+      number,
       message,
     }
   }

@@ -100,4 +100,37 @@ module.exports = new class {
         .catch(err => reject(err))
     })
   }
+
+  async sendMessage({ connectionName, number, message }) {
+    return new Promise( async (resolve, reject) => {
+      const connection = await this.getConnection(connectionName)
+
+      if (connection) {
+        const client = connection.client
+  
+        if (typeof number == 'undefined' || typeof message == 'undefined') {
+          reject('Missing Params');
+        }
+  
+        try {
+          const response = await client.sendText(`${number}@c.us`, message)
+  
+          const log = require('../../Models/Log.model')
+  
+          log.create({
+            type: "SEND_MESSAGE",
+            body: {
+              connectionName,
+              number,
+              message,
+            },
+          })
+  
+          resolve(response)
+        } catch (error) {
+          reject(error)
+        }
+      }
+    })
+  }
 }
