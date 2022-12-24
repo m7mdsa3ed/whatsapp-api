@@ -1,7 +1,10 @@
 const venomService = require('../../Services/Venom')
+const { dispatcher } = require('../../Queues/Main')
+const dayjs = require('dayjs')
+const log = require('../../Models/Log.model')
 
 exports.connect = async (req, res) => {
-  const { connectionName } = req.body || {}
+  const { connectionName, force } = req.body || {}
 
   if (!connectionName) {
     return res.json({
@@ -9,10 +12,13 @@ exports.connect = async (req, res) => {
     })
   }
 
-  const results = await venomService.makeConnection(connectionName)
+  const results = await venomService[force ? "makeConnection" : "getConnection"](connectionName)
+
+  console.log({ results });
 
   if (results.status == "CONNECTED") {
     return res.json({
+      status: "OK",
       message: "Connected",
     })
   }
@@ -41,39 +47,50 @@ exports.connections = async (req, res) => {
 exports.sendMessage = async (req, res) => {
   const { connectionName, number, message } = req.body || {};
 
-  const connection = await venomService.getConnection(connectionName)
+  if (typeof number == 'undefined' || typeof message == 'undefined') {
+    return res.json({
+      error: "Missing Params"
+    })
+  }
 
-  if (connection) {
-    const client = connection.client
+  try {
+    const response = await venomService.sendMessage({ connectionName, number, message })
 
-    if (typeof number == 'undefined' || typeof message == 'undefined') {
-      return res.json({
-        error: "Missing Params"
-      })
-    }
+    log.create({
+      type: "SEND_MESSAGE",
+      body: {
+        connectionName,
+        number,
+        message,
+      },
+    })
 
-    try {
-      const response = await client.sendText(`${number}@c.us`, message)
+    return res.json({
+      response
+    })
 
-      const log = require('../../Models/Log.model')
+  } catch (error) {
+    return res.json({
+      error
+    })
+  }
+}
 
-      log.create({
-        type: "SEND_MESSAGE",
-        body: {
-          connectionName,
-          number,
-          message,
-        },
-      })
+exports.scheduleMessage = (req, res) => {
+  const { connectionName, number, message, at } = req.body || {};
 
-      return res.json({
-        response
-      })
-
-    } catch (error) {
-      return res.json({
-        error
-      })
+  const payload = {
+    handler: "app/Jobs/SendWhatsappMessage",
+    payload: {
+      connectionName,
+      number,
+      message,
     }
   }
+
+  dispatcher(payload, { delay: dayjs(at).diff(dayjs()) })
+
+  res.json({
+    message: 'Message Scheduled!'
+  })
 }

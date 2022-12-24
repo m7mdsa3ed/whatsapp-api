@@ -1,10 +1,14 @@
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 
 require('dotenv').config()
+
+global.basePath = path.resolve(__dirname);
+
 require('./libs/mongodb').connect()
 
 const corsConfigs = {
