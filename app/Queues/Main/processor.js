@@ -1,11 +1,11 @@
-const processor = (job, done) => {
+const processor = async (job, done) => {
   const { data } = job
 
   const handlerPath = data.handler;
 
   const handler = require(`${basePath}/${handlerPath}`);
 
-  handler(data.payload)
+  await handler(data.payload)
 
   done()
 }

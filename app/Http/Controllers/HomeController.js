@@ -11,15 +11,25 @@ exports.index = (req, res) => {
 exports.getJobs = async (req, res) => {
   const { queue } = require('../../Queues/Main')
 
-  const jobs = await queue.getJobs(['delayed', 'waiting', 'active'])
+  const types = ['delayed', 'waiting', 'active', 'failed', 'completed'];
 
-  const jobCounts = await queue.getJobCounts();
+  const jobs = [];
+
+  for (let i = 0; i < types.length; i++) {
+    const type = types[i];
+
+    const _jobs = await queue.getJobs([type]);
+
+    jobs.push(_jobs.map(job => ({ job, type })))
+  }
 
   res.json({
-    jobs: jobs.map(job => ({
+    jobs: jobs.flat(1).map(({ job, type }) => ({
+      job,
+      type: type.toUpperCase(),
       id: job.id,
       data: job.data,
-      time: dayjs(job.timestamp).add(job.delay).format("LLL")
+      time: dayjs(job.timestamp).add(job.delay).format('LLL'),
     }))
   })
 }

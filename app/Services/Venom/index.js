@@ -7,7 +7,7 @@ module.exports = new class {
     this.connections = []
   }
 
-  async getExistingConneections() {
+  async getExistingConnections() {
     const sessions = await fsAsync.readdir('tokens')
 
     return sessions.map(s => s.replace('-session', ''))
@@ -21,21 +21,26 @@ module.exports = new class {
     return [];
   }
 
-  async createIfExistsAndNotConnected(connectionName) {
-    const existingConneections = await this.getExistingConneections()
-
-    const isConnectionExistsAlready = existingConneections.includes(connectionName);
-
+  async createIfNotConnected(connectionName) {
     const isConnectedAlready = this.getConnectionNames().includes(connectionName);
+    
+    console.log({
+      connectionName,
+      isConnectedAlready,
+    });
 
-    if (existingConneections.length && isConnectionExistsAlready && !isConnectedAlready) {
-      await this.makeConnection(connectionName)
+    if (!isConnectedAlready) {
+      return await this.makeConnection(connectionName)
     }
   }
 
   async getConnection(connectionName) {
     if (typeof connectionName != 'undefined') {
-      await this.createIfExistsAndNotConnected(connectionName);
+      const results = await this.createIfNotConnected(connectionName);
+
+      if (results) {
+        return results
+      }
 
       return this.connections.filter(c => c.connectionName == connectionName)[0];
     }

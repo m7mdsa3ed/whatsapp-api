@@ -4,7 +4,7 @@ const dayjs = require('dayjs')
 const log = require('../../Models/Log.model')
 
 exports.connect = async (req, res) => {
-  const { connectionName } = req.body || {}
+  const { connectionName, force } = req.body || {}
 
   if (!connectionName) {
     return res.json({
@@ -12,10 +12,13 @@ exports.connect = async (req, res) => {
     })
   }
 
-  const results = await venomService.makeConnection(connectionName)
+  const results = await venomService[force ? "makeConnection" : "getConnection"](connectionName)
+
+  console.log({ results });
 
   if (results.status == "CONNECTED") {
     return res.json({
+      status: "OK",
       message: "Connected",
     })
   }
