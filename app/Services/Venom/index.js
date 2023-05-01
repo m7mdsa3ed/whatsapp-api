@@ -7,7 +7,7 @@ module.exports = new class {
     this.connections = []
   }
 
-  async getExistingConneections() {
+  async getExistingConnections() {
     const sessions = await fsAsync.readdir('tokens')
 
     return sessions.map(s => s.replace('-session', ''))
@@ -21,21 +21,26 @@ module.exports = new class {
     return [];
   }
 
-  async createIfExistsAndNotConnected(connectionName) {
-    const existingConneections = await this.getExistingConneections()
-
-    const isConnectionExistsAlready = existingConneections.includes(connectionName);
-
+  async createIfNotConnected(connectionName) {
     const isConnectedAlready = this.getConnectionNames().includes(connectionName);
+    
+    console.log({
+      connectionName,
+      isConnectedAlready,
+    });
 
-    if (existingConneections.length && isConnectionExistsAlready && !isConnectedAlready) {
-      await this.makeConnection(connectionName)
+    if (!isConnectedAlready) {
+      return await this.makeConnection(connectionName)
     }
   }
 
   async getConnection(connectionName) {
     if (typeof connectionName != 'undefined') {
-      await this.createIfExistsAndNotConnected(connectionName);
+      const results = await this.createIfNotConnected(connectionName);
+
+      if (results) {
+        return results
+      }
 
       return this.connections.filter(c => c.connectionName == connectionName)[0];
     }
@@ -98,6 +103,39 @@ module.exports = new class {
           resolve(connection)
         })
         .catch(err => reject(err))
+    })
+  }
+
+  async sendMessage({ connectionName, number, message }) {
+    return new Promise( async (resolve, reject) => {
+      const connection = await this.getConnection(connectionName)
+
+      if (connection) {
+        const client = connection.client
+  
+        if (typeof number == 'undefined' || typeof message == 'undefined') {
+          reject('Missing Params');
+        }
+  
+        try {
+          const response = await client.sendText(`${number}@c.us`, message)
+  
+          const log = require('../../Models/Log.model')
+  
+          log.create({
+            type: "SEND_MESSAGE",
+            body: {
+              connectionName,
+              number,
+              message,
+            },
+          })
+  
+          resolve(response)
+        } catch (error) {
+          reject(error)
+        }
+      }
     })
   }
 }
