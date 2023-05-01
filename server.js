@@ -9,8 +9,6 @@ require('dotenv').config()
 
 global.basePath = path.resolve(__dirname);
 
-require('./libs/mongodb').connect()
-
 const corsConfigs = {
   origin: '*'
 }

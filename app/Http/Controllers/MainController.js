@@ -1,7 +1,6 @@
 const venomService = require('../../Services/Venom')
 const { dispatcher } = require('../../Queues/Main')
 const dayjs = require('dayjs')
-const log = require('../../Models/Log.model')
 
 exports.connect = async (req, res) => {
   const { connectionName, force } = req.body || {}
@@ -55,15 +54,6 @@ exports.sendMessage = async (req, res) => {
 
   try {
     const response = await venomService.sendMessage({ connectionName, number, message })
-
-    log.create({
-      type: "SEND_MESSAGE",
-      body: {
-        connectionName,
-        number,
-        message,
-      },
-    })
 
     return res.json({
       response

@@ -120,17 +120,6 @@ module.exports = new class {
         try {
           const response = await client.sendText(`${number}@c.us`, message)
   
-          const log = require('../../Models/Log.model')
-  
-          log.create({
-            type: "SEND_MESSAGE",
-            body: {
-              connectionName,
-              number,
-              message,
-            },
-          })
-  
           resolve(response)
         } catch (error) {
           reject(error)
