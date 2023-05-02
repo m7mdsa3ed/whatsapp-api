@@ -82,15 +82,14 @@ module.exports = new class {
         })
       }
 
-      const session = {
-        session: `${connectionName}-session`
-      };
-
-      const venomConfig = {
-        logQR: false
+      const options = {
+        session: `${connectionName}-session`,
+        disableSpins: true,
+        disableWelcome: true,
+        useChrome: false,
       }
 
-      venom.create(session, catchQR, undefined, venomConfig)
+      venom.create(options, catchQR)
         .then(client => {
           const connection = {
             connectionName,

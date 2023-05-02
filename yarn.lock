@@ -4000,7 +4000,7 @@ vary@^1, vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-venom-bot@^4.3.6:
+venom-bot@^4.3.7:
   version "4.3.7"
   resolved "https://registry.yarnpkg.com/venom-bot/-/venom-bot-4.3.7.tgz#1d1f7a92a21bc2a63e9cafb4b6b5d1944c0354e8"
   integrity sha512-mWCp6rpABiO6D+IgHeGvwzO/+HqsVu7YZg5buQLQW5GnadzbLhIh56h3JloCumaubbiDQDo5+Eu/sDnqp1hMnQ==
