@@ -13,9 +13,8 @@ exports.connect = async (req, res) => {
 
   const results = await venomService[force ? "makeConnection" : "getConnection"](connectionName)
 
-  console.log({ results });
-
   if (results.status == "CONNECTED") {
+
     return res.json({
       status: "OK",
       message: "Connected",
@@ -38,8 +37,13 @@ exports.renderQR = async (req, res) => {
 exports.connections = async (req, res) => {
   const connections = await venomService.getConnection();
 
+  
+
   res.json({
-    connections: connections.filter(c => c.client).map(c => c.connectionName)
+    connections: connections.map(connection => ({
+      connectionName: connection.connectionName,
+      status: connection.status,
+    }))
   })
 }
 
@@ -61,7 +65,7 @@ exports.sendMessage = async (req, res) => {
 
   } catch (error) {
     return res.json({
-      error
+      error: error.message
     })
   }
 }

@@ -9,7 +9,7 @@ router.get('/jobs', Authentication, HomeController.getJobs)
 
 router.post('/connect', Authentication, MainController.connect)
 router.get('/render/qr/:name', MainController.renderQR)
-router.post('/connections', Authentication, MainController.connections)
+router.get('/connections', Authentication, MainController.connections)
 router.post('/send-message', Authentication, MainController.sendMessage)
 router.post('/schedule-message', Authentication, MainController.scheduleMessage)
 
