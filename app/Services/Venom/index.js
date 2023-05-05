@@ -1,55 +1,48 @@
-const venom = require('venom-bot');
-const fs = require('fs');
-const fsAsync = require('fs/promises')
-
-module.exports = new class {
+const venom = require("venom-bot");
+const fs = require("fs");
+const fsAsync = require("fs/promises");
+const MessagesService = require("../../Services/Messages");
+module.exports = new (class {
   constructor() {
-    this.connections = []
+    this.connections = [];
   }
 
   async getExistingConnections() {
-    const sessions = await fsAsync.readdir('tokens', { withFileTypes: true })
+    const sessions = await fsAsync.readdir("tokens", { withFileTypes: true });
 
     return sessions
-      .filter(dirent => dirent.isDirectory())
-      .map(s => s.name.replace('-session', ''))
+      .filter((dirent) => dirent.isDirectory())
+      .map((s) => s.name.replace("-session", ""));
   }
 
-  getEstablishedConnectionNames() {
-    if (this.connections.length) {
-      return this.connections
-        .filter(c => c.client)
-        .map(c => c.connectionName)
-    }
-
-    return [];
+  getConnectedConnections() {
+    return this.connections.filter((c) => c.client);
   }
 
   async createIfNotConnected(connectionName) {
-    const isConnectedAlready = this.getEstablishedConnectionNames().includes(connectionName);
-    
-    console.log({
-      connectionName,
-      isConnectedAlready,
-    });
+    const isConnectedAlready = this.getConnectedConnections()
+      .map((c) => c.connectionName)
+      .includes(connectionName);
 
     if (!isConnectedAlready) {
-      return await this.makeConnection(connectionName)
+      return await this.makeConnection(connectionName);
     }
   }
 
   async getConnection(connectionName) {
-    if (typeof connectionName != 'undefined') {
+    if (typeof connectionName != "undefined") {
       const results = await this.createIfNotConnected(connectionName);
 
       if (results) {
-        return results
+        return results;
       }
 
-      return this.connections.filter(c => c.connectionName == connectionName)[0];
+      return this.getConnectedConnections().filter(
+        (c) => c.connectionName == connectionName
+      )[0];
     }
 
-    return this.connections
+    return this.connections;
   }
 
   async makeConnection(connectionName, connectionOptions) {
@@ -60,20 +53,20 @@ module.exports = new class {
         const response = {};
 
         if (matches.length !== 3) {
-          return new Error('Invalid input string');
+          return new Error("Invalid input string");
         }
 
         response.type = matches[1];
 
-        response.data = new Buffer.from(matches[2], 'base64');
+        response.data = new Buffer.from(matches[2], "base64");
 
         const imageBuffer = response;
 
-        const fileName = `${connectionName}-qr.png`
+        const fileName = `${connectionName}-qr.png`;
 
-        const path = `public/storage/${fileName}`
+        const path = `public/storage/${fileName}`;
 
-        fs.writeFile(path, imageBuffer['data'], 'binary', (err) => {
+        fs.writeFile(path, imageBuffer["data"], "binary", (err) => {
           if (err != null) {
             console.log(err);
           }
@@ -83,87 +76,98 @@ module.exports = new class {
           connectionName,
           status: "WAITING_FOR_QRSCAN",
           url: process.env.APP_URL + `/render/qr/${fileName}`,
-        })
-      }
+        });
+      };
 
       const options = {
         session: `${connectionName}-session`,
         disableSpins: true,
         disableWelcome: true,
         useChrome: false,
+        headless: "new",
         puppeteerOptions: {
-          headless: "new",
+          //
         },
-        ...connectionOptions ?? {}
-      }
+        ...(connectionOptions ?? {}),
+      };
 
       const onSessionStatusChange = (sessionStatus) => {
         this.setConnection(connectionName, {
           connectionName,
           status: sessionStatus,
-        })
-      }
+        });
+      };
 
-      venom.create(options, onQr, onSessionStatusChange)
-        .then(client => {
+      venom
+        .create(options, onQr, onSessionStatusChange)
+        .then((client) => {
           const payload = {
             connectionName,
             client,
-            status: 'CONNECTED'
-          }
+            status: "CONNECTED",
+          };
 
-          this.setConnection(connectionName, payload)
+          this.setConnection(connectionName, payload);
 
-          resolve(payload)
+          resolve(payload);
         })
-        .catch(err => reject(err))
-    })
+        .catch((err) => reject(err));
+    });
   }
 
   async sendMessage({ connectionName, number, message }) {
-    return new Promise( async (resolve, reject) => {
-      const connection = await this.getConnection(connectionName)
+    return new Promise(async (resolve, reject) => {
+      const connection = await this.getConnection(connectionName);
 
       if (connection && connection.client) {
-        const client = connection.client
-  
-        if (typeof number == 'undefined' || typeof message == 'undefined') {
-          reject('Missing Params');
+        const client = connection.client;
+
+        if (typeof number == "undefined" || typeof message == "undefined") {
+          reject("Missing Params");
         }
-  
+
         try {
-          const response = await client.sendText(`${number}@c.us`, message)
-  
-          resolve(response)
+          const response = await client.sendText(`${number}@c.us`, message);
+
+          MessagesService.createMessage({
+            type: "SendText",
+            data: { message, number, connectionName },
+          });
+
+          resolve(response);
         } catch (error) {
-          reject(error)
+          reject(error);
         }
       }
-    })
+    });
   }
 
   setConnection(connectionName, payload, override) {
-    const connectionIndex = this.connections.findIndex(connection => connection.connectionName == connectionName);
+    const connectionIndex = this.connections.findIndex(
+      (connection) => connection.connectionName == connectionName
+    );
 
     const getPayload = (connection) => {
       return override
         ? payload
         : {
-          ...connection ?? {},
-          ...payload
-        }
-    }
+            ...(connection ?? {}),
+            ...payload,
+          };
+    };
 
     if (connectionIndex != -1) {
-      this.connections[connectionIndex] = getPayload(this.connections[connectionIndex])
+      this.connections[connectionIndex] = getPayload(
+        this.connections[connectionIndex]
+      );
     } else {
-      this.connections.push(getPayload())
+      this.connections.push(getPayload());
     }
   }
 
   async createConnectionInstances() {
     const connections = await this.getExistingConnections();
-  
+
     connections.forEach(async (connection) => {
       try {
         await this.makeConnection(connection, {
@@ -173,7 +177,7 @@ module.exports = new class {
         });
       } catch (error) {
         console.log({ error });
-      } 
-    })
+      }
+    });
   }
-};
+})();
