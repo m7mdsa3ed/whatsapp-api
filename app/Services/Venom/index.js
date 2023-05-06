@@ -85,7 +85,7 @@ module.exports = new (class {
         disableSpins: true,
         disableWelcome: true,
         useChrome: false,
-        headless: "new",
+        headless: "old",
         puppeteerOptions: {
           executablePath: PuppeteerConfigs.executablePath
         },
