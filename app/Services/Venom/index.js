@@ -2,6 +2,7 @@ const venom = require("venom-bot");
 const fs = require("fs");
 const fsAsync = require("fs/promises");
 const MessagesService = require("../../Services/Messages");
+const PuppeteerConfigs = require("../../Configs/Puppeteer");
 module.exports = new (class {
   constructor() {
     this.connections = [];
@@ -86,7 +87,7 @@ module.exports = new (class {
         useChrome: false,
         headless: "new",
         puppeteerOptions: {
-          //
+          executablePath: PuppeteerConfigs.executablePath
         },
         ...(connectionOptions ?? {}),
       };

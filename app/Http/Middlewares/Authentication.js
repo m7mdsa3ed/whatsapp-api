@@ -27,9 +27,9 @@ const getAuthorizationToken = (req) => {
 const validateToken = async (token) => {
   const AccessKey = require("../../Models/AccessKey");
 
-  const { key } = await AccessKey.findOne({ key: token });
+  const key = await AccessKey.findOne({ key: token });
 
-  return token == key
+  return token == key?.key
 };
 
 module.exports = authenticate;
