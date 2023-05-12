@@ -9,4 +9,4 @@ const schema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("Log", schema);
+module.exports = mongoose.model("Message", schema);
