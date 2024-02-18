@@ -24,7 +24,7 @@ const job = async (payload) => {
     await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 5) * 1000))
   }
 
-  const next = dayjs().add(10, 'second').format('YYYY-MM-DD HH:mm:ss')
+  const next = dayjs().add(1, 'day').format('YYYY-MM-DD HH:mm:ss')
 
   const nextJobPayload = {
     handler: handlerName,
