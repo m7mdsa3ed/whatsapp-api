@@ -1,13 +1,25 @@
-const Queue = require('bull') ;
+const {Queue, Worker} = require('bullmq');
 const processor = require('./processor')
+const ioredis = require('ioredis')
 
-const queue = new Queue('main')
+const connection = {
+  host: '127.0.0.1',
+  port: 6379
+};
 
-queue.process(processor)
+const queue = new Queue('main', {
+  connection
+})
 
-const dispatcher = (payload, options) => {
-  queue.add(payload, options)
+const dispatcher = async (payload, options) => {
+  const jobName = payload.jobName ?? 'job-' + Date.now()
+  
+  await queue.add(jobName, payload, options)
 }
+
+new Worker('main', processor, {
+  connection
+})
 
 module.exports = {
   dispatcher,

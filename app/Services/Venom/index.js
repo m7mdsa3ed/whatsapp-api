@@ -85,10 +85,8 @@ module.exports = new (class {
         disableSpins: true,
         disableWelcome: true,
         useChrome: false,
-        headless: "old",
-        puppeteerOptions: {
-          executablePath: PuppeteerConfigs.executablePath
-        },
+        headless: "new",
+        browserPathExecutable: PuppeteerConfigs.executablePath,
         ...(connectionOptions ?? {}),
       };
 
@@ -130,9 +128,9 @@ module.exports = new (class {
         try {
           const response = await client.sendText(`${number}@c.us`, message);
 
-          MessagesService.createMessage({
+          await MessagesService.createMessage({
             type: "SendText",
-            data: { message, number, connectionName },
+            body: { message, number, connectionName },
           });
 
           resolve(response);

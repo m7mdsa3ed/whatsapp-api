@@ -13,7 +13,7 @@ const getConnectionURI = () => {
 exports.connect = () => {
   const uri = getConnectionURI();
 
-  mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  mongoose.connect(uri);
 
   const db = mongoose.connection
 

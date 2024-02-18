@@ -7,5 +7,5 @@ exports.createMessage = async (payload) => {
 };
 
 exports.findAll = async () => {
-  return await Message.findAll();
+  return await Message.find();
 };

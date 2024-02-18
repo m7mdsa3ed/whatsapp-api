@@ -5,6 +5,8 @@ const processor = async (job, done) => {
 
   const handler = require(`${basePath}/${handlerPath}`);
 
+  data.payload.handlerName = data.handler
+  
   await handler(data.payload)
 
   done()

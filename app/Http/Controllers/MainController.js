@@ -1,6 +1,7 @@
 const venomService = require('../../Services/Venom')
-const { dispatcher } = require('../../Queues/Main')
+const { dispatcher, queue} = require('../../Queues/Main')
 const dayjs = require('dayjs')
+const MessagesService = require("../../Services/Messages");
 
 exports.connect = async (req, res) => {
   const { connectionName, force } = req.body || {}
@@ -13,8 +14,7 @@ exports.connect = async (req, res) => {
 
   const results = await venomService[force ? "makeConnection" : "getConnection"](connectionName)
 
-  if (results.status == "CONNECTED") {
-
+  if (results.status === "CONNECTED") {
     return res.json({
       status: "OK",
       message: "Connected",
@@ -37,14 +37,18 @@ exports.renderQR = async (req, res) => {
 exports.connections = async (req, res) => {
   const connections = await venomService.getConnection();
 
-  
-
   res.json({
     connections: connections.map(connection => ({
       connectionName: connection.connectionName,
       status: connection.status,
     }))
   })
+}
+
+exports.getMessages = async (req, res) => {
+  const messages = await MessagesService.findAll();
+
+  return res.json(messages);
 }
 
 exports.sendMessage = async (req, res) => {
@@ -86,5 +90,54 @@ exports.scheduleMessage = (req, res) => {
 
   res.json({
     message: 'Message Scheduled!'
+  })
+}
+
+const parsePhoneNumbers = (numbers) => {
+  if (typeof numbers === 'string') {
+    numbers = numbers.split(',')
+  }
+  
+  return numbers
+    .map(number => {
+      number = number.trim();
+      
+      // remove + and spaces and ( and ) and - and . and , and ; 
+      number = number.replace(/[\s+()\-.,;]/g, '')
+
+      // add egypt country code
+      if (number.startsWith('01')) {
+        number = `2${number}`
+      }
+      
+      return number      
+    })
+}
+
+exports.dailyQuote = async (req, res) => {
+  const { connectionName, numbers, at } = req.body || {};
+
+  const phoneNumbers = parsePhoneNumbers(numbers)
+  
+  const payload = {
+    handler: "app/Jobs/ScheduledQuoteMessage",
+    payload: {
+      connectionName,
+      numbers: phoneNumbers,
+    }
+  }
+  
+  await dispatcher(payload, { delay: dayjs(at).diff(dayjs()) })
+  
+  res.json({
+    message: 'Daily Quote Scheduled!'
+  })
+}
+
+exports.resetQueue = async (req, res) => {
+  await queue.obliterate()
+
+  return res.json({
+    message: 'Queue obliterated'
   })
 }

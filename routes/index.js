@@ -14,7 +14,10 @@ router.post('/generate', AuthenticationController.generate)
 router.post('/connect', Authentication, MainController.connect)
 router.get('/render/qr/:name', MainController.renderQR)
 router.get('/connections', Authentication, MainController.connections)
+router.get('/get-messages', Authentication, MainController.getMessages)
 router.post('/send-message', Authentication, MainController.sendMessage)
 router.post('/schedule-message', Authentication, MainController.scheduleMessage)
+router.post('/daily-quote', Authentication, MainController.dailyQuote)
+router.post('/reset-queue', Authentication, MainController.resetQueue)
 
 module.exports = router;
