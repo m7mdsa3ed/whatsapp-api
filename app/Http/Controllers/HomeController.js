@@ -1,15 +1,8 @@
 const dayjs = require('dayjs')
 dayjs.extend(require('dayjs/plugin/localizedFormat'))
 
-exports.index = (req, res) => {
-  res.json({
-    message: "WhatsApp API",
-    status: "WIP"
-  })
-}
-
-exports.getJobs = async (req, res) => {
-  const { queue } = require('../../Queues/Main')
+const getJobs = async () => {
+  const {queue} = require('../../Queues/Main')
 
   const types = ['delayed', 'waiting', 'active', 'failed', 'completed'];
 
@@ -20,16 +13,26 @@ exports.getJobs = async (req, res) => {
 
     const _jobs = await queue.getJobs([type]);
 
-    jobs.push(_jobs.map(job => ({ job, type })))
+    jobs.push(_jobs.map(job => ({job, type})))
   }
 
+  return jobs.flat(1).map(({job, type}) => ({
+    name: job.name,
+    type: type.toUpperCase(),
+    id: job.id,
+    data: job.data,
+    time: dayjs(job.timestamp).add(job.delay).format('LLL'),
+  }))
+}
+
+exports.index = async (req, res) => {
+  res.render('index', {
+    jobs: await getJobs(),
+  });
+}
+
+exports.getJobs = async (req, res) => {
   res.json({
-    jobs: jobs.flat(1).map(({ job, type }) => ({
-      job,
-      type: type.toUpperCase(),
-      id: job.id,
-      data: job.data,
-      time: dayjs(job.timestamp).add(job.delay).format('LLL'),
-    }))
+    jobs: await getJobs(),
   })
 }
