@@ -1,10 +1,11 @@
 const venomService = require('../../Services/Venom')
-const { dispatcher, queue} = require('../../Queues/Main')
+const {dispatcher, queue} = require('../../Queues/Main')
 const dayjs = require('dayjs')
 const MessagesService = require("../../Services/Messages");
+const QuoteService = require("../../Services/Quotes");
 
 exports.connect = async (req, res) => {
-  const { connectionName, force } = req.body || {}
+  const {connectionName, force} = req.body || {}
 
   if (!connectionName) {
     return res.json({
@@ -31,7 +32,7 @@ exports.renderQR = async (req, res) => {
 
   const path = `${baseURL}/${imageName}`
 
-  res.render('view', { path })
+  res.render('view', {path})
 }
 
 exports.connections = async (req, res) => {
@@ -52,7 +53,7 @@ exports.getMessages = async (req, res) => {
 }
 
 exports.sendMessage = async (req, res) => {
-  const { connectionName, number, message } = req.body || {};
+  const {connectionName, number, message} = req.body || {};
 
   if (typeof number == 'undefined' || typeof message == 'undefined') {
     return res.json({
@@ -61,7 +62,7 @@ exports.sendMessage = async (req, res) => {
   }
 
   try {
-    const response = await venomService.sendMessage({ connectionName, number, message })
+    const response = await venomService.sendMessage({connectionName, number, message})
 
     return res.json({
       response
@@ -75,7 +76,7 @@ exports.sendMessage = async (req, res) => {
 }
 
 exports.scheduleMessage = (req, res) => {
-  const { connectionName, number, message, at } = req.body || {};
+  const {connectionName, number, message, at} = req.body || {};
 
   const payload = {
     handler: "app/Jobs/SendWhatsappMessage",
@@ -86,7 +87,7 @@ exports.scheduleMessage = (req, res) => {
     }
   }
 
-  dispatcher(payload, { delay: dayjs(at).diff(dayjs()) })
+  dispatcher(payload, {delay: dayjs(at).diff(dayjs())})
 
   res.json({
     message: 'Message Scheduled!'
@@ -97,11 +98,11 @@ const parsePhoneNumbers = (numbers) => {
   if (typeof numbers === 'string') {
     numbers = numbers.split(',')
   }
-  
+
   return numbers
     .map(number => {
       number = number.trim();
-      
+
       // remove + and spaces and ( and ) and - and . and , and ; 
       number = number.replace(/[\s+()\-.,;]/g, '')
 
@@ -109,16 +110,47 @@ const parsePhoneNumbers = (numbers) => {
       if (number.startsWith('01')) {
         number = `2${number}`
       }
-      
-      return number      
+
+      return number
     })
 }
 
+exports.saveQuote = async (req, res) => {
+  const {quote, author} = req.body || {};
+
+  if (!quote) {
+    return res.json({
+      error: 'Missing Params'
+    })
+  }
+
+  const theQuote = await QuoteService.createQuote({quote, author});
+  
+  return res.json({
+    message: "Quote Saved!",
+    quote: theQuote
+  });
+}
+
+exports.getQuotes = async (req, res) => {
+  const quotes = await QuoteService.findAll();
+
+  return res.json(quotes);
+}
+
+exports.getRandomQuote = async (req, res) => {
+  let quote = await QuoteService.getRandomQuote();
+
+  quote = await QuoteService.inceaseQuoteViews(quote._id);
+  
+  return res.json(quote);
+}
+
 exports.dailyQuote = async (req, res) => {
-  const { connectionName, numbers, at } = req.body || {};
+  const {connectionName, numbers, at} = req.body || {};
 
   const phoneNumbers = parsePhoneNumbers(numbers)
-  
+
   const payload = {
     handler: "app/Jobs/ScheduledQuoteMessage",
     payload: {
@@ -126,9 +158,9 @@ exports.dailyQuote = async (req, res) => {
       numbers: phoneNumbers,
     }
   }
-  
-  await dispatcher(payload, { delay: dayjs(at).diff(dayjs()) })
-  
+
+  await dispatcher(payload, {delay: dayjs(at).diff(dayjs())})
+
   res.json({
     message: 'Daily Quote Scheduled!'
   })
