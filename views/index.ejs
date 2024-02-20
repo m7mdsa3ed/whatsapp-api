@@ -27,7 +27,12 @@
                         <td>
                             <span class="badge bg-primary"><%= job.type%> </span>
                         </td>
-                        <td> <%= job.time %> </td>
+                        <td> <%= 
+                                new Date(job.time).toLocaleString('en-US', {
+                                    timeZoneName : 'short'
+                                })                        
+                            %> 
+                        </td>
                     </tr>
                 <% } %>
             </tbody>
