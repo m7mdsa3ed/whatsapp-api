@@ -25,7 +25,9 @@ const job = async (payload) => {
 }
 
 const getQuoteMessage = async () => {
-  return await QuotesService.getRandomQuote()
+  const { quote } = await QuotesService.getRandomQuote()
+  
+  return quote;
 }
 
 const getRandomOneFromQuoteApi = async () => {
