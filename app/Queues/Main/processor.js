@@ -1,4 +1,4 @@
-const processor = async (job, done) => {
+const processor = async (job) => {
   const { data } = job
 
   const handlerPath = data.handler;
@@ -8,8 +8,8 @@ const processor = async (job, done) => {
   data.payload.handlerName = data.handler
   
   await handler(data.payload)
-
-  done()
+  
+  return true;
 }
 
 module.exports = processor
