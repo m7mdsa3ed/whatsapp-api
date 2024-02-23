@@ -6,6 +6,12 @@ exports.createQuote = async (payload) => {
   });
 };
 
+exports.deleteQuote = async (quoteId) => {
+  return Quote.deleteOne({
+    _id: quoteId
+  });
+}
+
 exports.findAll = async () => {
   return Quote.find();
 };

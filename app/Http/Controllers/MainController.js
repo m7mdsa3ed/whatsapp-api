@@ -119,17 +119,36 @@ exports.saveQuote = async (req, res) => {
   const {quote, author} = req.body || {};
 
   if (!quote) {
-    return res.json({
-      error: 'Missing Params'
-    })
+
+    return req.isAjax()
+      ? res.json({error: 'Missing Params'})
+      : res.redirect('/')
   }
 
   const theQuote = await QuoteService.createQuote({quote, author});
-  
-  return res.json({
-    message: "Quote Saved!",
-    quote: theQuote
-  });
+
+  return req.isAjax()
+    ? res.json({
+      message: "Quote Saved!",
+      quote: theQuote
+    })
+    : res.redirect('/')
+}
+
+exports.deleteQuote = async (req, res) => {
+  const {id} = req.body || {};
+
+  if (!id) {
+    return req.isAjax()
+      ? res.json({error: 'Missing Params'})
+      : res.redirect('/')
+  }
+
+  await QuoteService.deleteQuote(id);
+
+  return req.isAjax()
+    ? res.json({error: 'Quote Deleted!'})
+    : res.redirect('/')
 }
 
 exports.getQuotes = async (req, res) => {
@@ -142,7 +161,7 @@ exports.getRandomQuote = async (req, res) => {
   let quote = await QuoteService.getRandomQuote();
 
   quote = await QuoteService.inceaseQuoteViews(quote._id);
-  
+
   return res.json(quote);
 }
 
@@ -154,7 +173,7 @@ exports.dailyQuote = async (req, res) => {
   const payload = {
     handler: "app/Jobs/ScheduledQuoteMessage",
     payload: {
-      connectionName,
+      connectionName: connectionName || 'main',
       numbers: phoneNumbers,
     }
   }

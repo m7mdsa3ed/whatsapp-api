@@ -16,6 +16,12 @@ global.basePath = path.resolve(__dirname);
 
 require('./libs/mongodb').connect();
 
+app.use((req, res, next) => {
+  req.isAjax = () => req.xhr || req.headers.accept.indexOf('json') > -1;
+  
+  next();
+})
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

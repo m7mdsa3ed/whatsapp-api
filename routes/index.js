@@ -8,6 +8,7 @@ const AuthenticationController = require('../app/Http/Controllers/Authentication
 
 router.get('/', HomeController.index)
 router.get('/jobs', Authentication, HomeController.getJobs)
+router.post('/delete-job', Authentication, HomeController.deleteJob)
 
 router.post('/generate', AuthenticationController.generate)
 
@@ -19,6 +20,7 @@ router.post('/send-message', Authentication, MainController.sendMessage)
 router.post('/schedule-message', Authentication, MainController.scheduleMessage)
 router.get('/get-quotes', Authentication, MainController.getQuotes)
 router.post('/save-quote', Authentication, MainController.saveQuote)
+router.post('/delete-quote', Authentication, MainController.deleteQuote)
 router.get('/random-quote', Authentication, MainController.getRandomQuote)
 router.post('/daily-quote', Authentication, MainController.dailyQuote)
 router.post('/reset-queue', Authentication, MainController.resetQueue)

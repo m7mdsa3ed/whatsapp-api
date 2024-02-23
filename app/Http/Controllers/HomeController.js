@@ -26,8 +26,11 @@ const getJobs = async () => {
 }
 
 exports.index = async (req, res) => {
+  const quotes = await require('../../Services/Quotes').findAll();
+  
   res.render('index', {
     jobs: await getJobs(),
+    quotes,
   });
 }
 
@@ -35,4 +38,18 @@ exports.getJobs = async (req, res) => {
   res.json({
     jobs: await getJobs(),
   })
+}
+
+exports.deleteJob = async (req, res) => {
+  const {queue} = require('../../Queues/Main')
+
+  const {id} = req.body;
+
+  const job = await queue.getJob(id);
+
+  if (job) {
+    await job.remove();
+  }
+
+  return res.redirect('/');
 }

@@ -8,7 +8,68 @@
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body class="bg-black">
-<div class="container-xxl mt-4">
+<div class="container-xxl mt-4 d-flex flex-column gap-3">
+    <div class="p-4 rounded shadow-lg bg-dark">
+        <form method="post" action="/save-quote">
+            <div class="mb-3">
+                <label for="quote" class="form-label">Quote</label>
+                <input type="text" class="form-control" id="quote" name="quote" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="author" class="form-label">Author</label>
+                <input type="text" class="form-control" id="author" name="author">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+    
+    <div class="table-responsive p-4 rounded shadow-lg bg-dark">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Quote</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Views</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (const quote of quotes) { %>
+                    <tr>
+                        <td> <%= quote.quote %> </td>
+                        <td> <%= quote.author %> </td>
+                        <td> <%= quote.views %> </td>
+                        <td>
+                            <form action="/delete-quote" method="post">
+                                <input type="hidden" name="id" value="<%= quote.id %>">
+                                
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="p-4 rounded shadow-lg bg-dark">
+        <form method="post" action="/daily-quote">
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="text" class="form-control" id="phone" name="numbers" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="at" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+    
     <div class="table-responsive p-2 rounded shadow-lg bg-dark">
         <table class="table">
             <thead>
@@ -17,10 +78,11 @@
                     <th scope="col">Name</th>
                     <th scope="col">Type</th>
                     <th scope="col">Time</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <% for (let job of jobs) { %>
+                <% for (const job of jobs) { %>
                     <tr>
                         <td> <%= job.id %> </td>
                         <td> <%= job.name %> </td>
@@ -32,6 +94,13 @@
                                     timeZoneName : 'short'
                                 })                        
                             %> 
+                        </td>
+                        <td>
+                            <form action="/delete-job" method="post">
+                                <input type="hidden" name="id" value="<%= job.id %>">
+                                
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 <% } %>
