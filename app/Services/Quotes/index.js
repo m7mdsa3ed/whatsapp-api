@@ -25,16 +25,24 @@ exports.find = async (quoteId) => {
 }
 
 exports.getRandomQuote = async () => {
-  const quotes = await Quote
-    .aggregate()
-    .sample(1)
-    .exec();
-
-  if (!quotes.length) {
+  const quotes = await Quote.aggregate([
+    {$group: {_id: null, minViews: {$min: "$views"}, doc: {$push: "$$ROOT"}}},
+    {$unwind: "$doc"},
+    {$match: {$expr: {$eq: ["$doc.views", "$minViews"]}}},
+    {$sample: {size: 1}}
+  ]);
+  
+  let quote = quotes[0] || null;
+  
+  if (!quote) {
     return {};
   }
 
-  return quotes[0];
+  quote = quote.doc;
+  
+  await this.inceaseQuoteViews(quote._id);
+  
+  return quote;
 }
 
 exports.inceaseQuoteViews = (quoteId) => {

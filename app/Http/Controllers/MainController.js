@@ -160,8 +160,6 @@ exports.getQuotes = async (req, res) => {
 exports.getRandomQuote = async (req, res) => {
   let quote = await QuoteService.getRandomQuote();
 
-  quote = await QuoteService.inceaseQuoteViews(quote._id);
-
   return res.json(quote);
 }
 
