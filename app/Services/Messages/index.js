@@ -1,11 +1,10 @@
-const Message = require("../../Models/Message");
+const Message = require("../../Models/Quote");
 
-exports.createMessage = async (payload) => {
-  return await Message.create({
-    ...payload,
-  });
-};
-
-exports.findAll = async () => {
-  return await Message.find();
+exports.toggleMessageActiveStatus = async (messageId, isActive) => {
+  return await Message
+    .findOneAndUpdate(
+      {_id: messageId},
+      {$set: {isActive}},
+    )
+    .exec();
 };

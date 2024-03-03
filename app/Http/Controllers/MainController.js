@@ -1,7 +1,7 @@
 const venomService = require('../../Services/Venom')
 const {dispatcher, queue} = require('../../Queues/Main')
 const dayjs = require('dayjs')
-const MessagesService = require("../../Services/Messages");
+const WhatsAppService = require("../../Services/Whatsapp");
 const QuoteService = require("../../Services/Quotes");
 
 exports.connect = async (req, res) => {
@@ -47,7 +47,7 @@ exports.connections = async (req, res) => {
 }
 
 exports.getMessages = async (req, res) => {
-  const messages = await MessagesService.findAll();
+  const messages = await WhatsAppService.findAllLogs();
 
   return res.json(messages);
 }

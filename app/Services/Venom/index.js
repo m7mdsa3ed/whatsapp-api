@@ -1,7 +1,7 @@
 const venom = require("venom-bot");
 const fs = require("fs");
 const fsAsync = require("fs/promises");
-const MessagesService = require("../../Services/Messages");
+const WhatsAppService = require("../../Services/Whatsapp");
 const PuppeteerConfigs = require("../../Configs/Puppeteer");
 module.exports = new (class {
   constructor() {
@@ -128,7 +128,7 @@ module.exports = new (class {
         try {
           const response = await client.sendText(`${number}@c.us`, message);
 
-          await MessagesService.createMessage({
+          await WhatsAppService.createLogMessage({
             type: "SendText",
             body: { message, number, connectionName },
           });

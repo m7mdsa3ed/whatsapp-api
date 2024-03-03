@@ -7,10 +7,14 @@ const schema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   createdAt: {
     type: Date,
     default: () => Date.now()
   }
 });
 
-module.exports = mongoose.model("Quote", schema);
+module.exports = mongoose.model("Message", schema, "messages");
