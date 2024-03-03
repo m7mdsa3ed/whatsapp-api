@@ -26,6 +26,7 @@ exports.find = async (quoteId) => {
 
 exports.getRandomQuote = async () => {
   const quotes = await Quote.aggregate([
+    {$match: {isActive: true}},
     {$group: {_id: null, minViews: {$min: "$views"}, doc: {$push: "$$ROOT"}}},
     {$unwind: "$doc"},
     {$match: {$expr: {$eq: ["$doc.views", "$minViews"]}}},

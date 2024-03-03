@@ -31,6 +31,7 @@
                 <tr>
                     <th scope="col">Quote</th>
                     <th scope="col">Author</th>
+                    <th scope="col">Active</th>
                     <th scope="col">Views</th>
                     <th scope="col">Actions</th>
                 </tr>
@@ -40,12 +41,20 @@
                     <tr>
                         <td> <%= quote.quote %> </td>
                         <td> <%= quote.author %> </td>
+                        <td> <%= quote.isActive %> </td>
                         <td> <%= quote.views %> </td>
                         <td>
                             <form action="/delete-quote" method="post">
                                 <input type="hidden" name="id" value="<%= quote.id %>">
                                 
                                 <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                            
+                            <form action="/toggle-message-active-status" method="post">
+                                <input type="hidden" name="id" value="<%= quote.id %>">
+                                <input type="hidden" name="isActive" value="<%= !quote.isActive %>">
+                                
+                                <button type="submit" class="btn btn-danger">Active</button>
                             </form>
                         </td>
                     </tr>
