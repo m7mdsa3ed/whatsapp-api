@@ -75,6 +75,29 @@ exports.sendMessage = async (req, res) => {
   }
 }
 
+exports.sendVoice = async (req, res) => {
+  const {connectionName, number, filePath} = req.body || {};
+
+  if (typeof number == 'undefined' || typeof filePath == 'undefined') {
+    return res.json({
+      error: "Missing Params"
+    })
+  }
+
+  try {
+    const response = await venomService.sendVoice({connectionName, number, filePath})
+
+    return res.json({
+      response
+    })
+
+  } catch (error) {
+    return res.json({
+      error: error.message
+    })
+  }
+}
+
 exports.scheduleMessage = (req, res) => {
   const {connectionName, number, message, at} = req.body || {};
 

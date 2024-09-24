@@ -141,6 +141,29 @@ module.exports = new (class {
     });
   }
 
+  async sendVoice({ connectionName, number, filePath }) {
+    return new Promise(async (resolve, reject) => {
+      const connection = await this.getConnection(connectionName);
+
+      if (!(connection && connection.client)) {
+        reject("Connection not found");
+      }
+
+      try {
+        const response = await connection.client.sendVoice(number, filePath);
+
+        await WhatsAppService.createLogMessage({
+          type: "SendVoice",
+          body: { audioUrl, number, connectionName },
+        });
+
+        resolve(response);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   setConnection(connectionName, payload, override) {
     const connectionIndex = this.connections.findIndex(
       (connection) => connection.connectionName == connectionName
@@ -150,9 +173,9 @@ module.exports = new (class {
       return override
         ? payload
         : {
-            ...(connection ?? {}),
-            ...payload,
-          };
+          ...(connection ?? {}),
+          ...payload,
+        };
     };
 
     if (connectionIndex != -1) {
